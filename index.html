@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#081018">
+    <meta name="description" content="A browser-based security log triage workbench for correlation, investigation, and evidence export.">
+    <title>Signal Desk | Security Log Triage</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to investigation workspace</a>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Signal Desk home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>Signal Desk</strong><small>Browser-native security triage</small></span>
+      </a>
+      <div class="header-meta">
+        <span class="privacy-badge"><i aria-hidden="true"></i> Local processing only</span>
+        <button class="button ghost" id="exportButton" type="button">Export case</button>
+      </div>
+    </header>
+
+    <main id="workspace">
+      <section class="intro" aria-labelledby="pageTitle">
+        <div>
+          <p class="eyebrow">Investigation workspace / SD-01</p>
+          <h1 id="pageTitle">Turn noisy events into a defensible first read.</h1>
+          <p>Normalize JSON, JSONL, or CSV logs, correlate high-signal behavior, and record triage decisions without sending evidence to a server.</p>
+        </div>
+        <div class="ingest-panel" aria-labelledby="ingestTitle">
+          <div>
+            <span class="step">01</span>
+            <h2 id="ingestTitle">Load evidence</h2>
+            <p>Files stay in this browser session.</p>
+          </div>
+          <div class="ingest-actions">
+            <button class="button primary" id="chooseFileButton" type="button">Choose log file</button>
+            <input id="fileInput" type="file" accept=".json,.jsonl,.csv,application/json,text/csv" aria-label="Import security log file" hidden>
+            <button class="button secondary" id="demoButton" type="button">Reset demo</button>
+          </div>
+          <p class="status" id="loadStatus" role="status" aria-live="polite">Demo case loaded.</p>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Case summary">
+        <article><span>Events</span><strong id="eventMetric">0</strong><small>normalized records</small></article>
+        <article><span>Sources</span><strong id="sourceMetric">0</strong><small>systems represented</small></article>
+        <article class="metric-alert"><span>Critical</span><strong id="criticalMetric">0</strong><small>correlated findings</small></article>
+        <article><span>Actors</span><strong id="actorMetric">0</strong><small>in active findings</small></article>
+      </section>
+
+      <section class="timeline-section" aria-labelledby="timelineTitle">
+        <div class="section-heading">
+          <div><p class="eyebrow">Event density</p><h2 id="timelineTitle">Case timeline</h2></div>
+          <p><span class="legend elevated"></span> Elevated event <span class="legend standard"></span> Other event</p>
+        </div>
+        <div class="timeline" id="timeline" role="img" aria-label="Event volume over the loaded time range"></div>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="findings-panel" aria-labelledby="findingsTitle">
+          <div class="section-heading compact">
+            <div><p class="eyebrow">Detection queue</p><h2 id="findingsTitle">Correlated findings</h2></div>
+            <span class="count" id="findingCount">0</span>
+          </div>
+          <div class="finding-list" id="findingList"></div>
+        </section>
+
+        <section class="events-panel" aria-labelledby="eventsTitle">
+          <div class="section-heading events-heading">
+            <div><p class="eyebrow">Normalized evidence</p><h2 id="eventsTitle">Event stream</h2></div>
+            <span class="count" id="visibleCount">0</span>
+          </div>
+          <form class="filters" id="filterForm" role="search">
+            <label class="search-field"><span>Search evidence</span><input id="searchInput" type="search" placeholder="Actor, IP, message…" autocomplete="off"></label>
+            <label><span>Source</span><select id="sourceFilter"><option value="">All sources</option></select></label>
+            <label><span>Severity</span><select id="severityFilter"><option value="">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option><option value="info">Info</option></select></label>
+          </form>
+          <div class="event-table-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Source / actor</th><th>Event</th><th>IP address</th></tr></thead>
+              <tbody id="eventRows"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" hidden>No events match the current filters.</div>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="findingDialog" aria-labelledby="dialogTitle">
+      <form method="dialog" class="dialog-shell">
+        <div class="dialog-heading"><div><p class="eyebrow" id="dialogSeverity"></p><h2 id="dialogTitle">Finding</h2></div><button class="icon-button" value="close" aria-label="Close finding details">×</button></div>
+        <p class="dialog-rationale" id="dialogRationale"></p>
+        <div class="recommendation"><span>Recommended next step</span><p id="dialogRecommendation"></p></div>
+        <div><span class="field-label">Linked evidence</span><div class="linked-events" id="dialogEvents"></div></div>
+        <fieldset>
+          <legend>Triage decision</legend>
+          <div class="decision-grid">
+            <label><input type="radio" name="decision" value="new"> New</label>
+            <label><input type="radio" name="decision" value="reviewed"> Reviewed</label>
+            <label><input type="radio" name="decision" value="escalated"> Escalated</label>
+          </div>
+          <label class="notes-field"><span>Analyst note</span><textarea id="findingNote" rows="3" placeholder="Record evidence, assumptions, or handoff context"></textarea></label>
+        </fieldset>
+        <button class="button primary full" id="saveDecisionButton" value="close">Save decision</button>
+      </form>
+    </dialog>
+
+    <footer><p>Signal Desk is a portfolio demonstration. Detection rules are transparent heuristics, not a replacement for a SIEM or incident-response process.</p><a href="https://github.com/drummer475-94" target="_blank" rel="noreferrer">GitHub profile <span aria-hidden="true">↗</span></a></footer>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

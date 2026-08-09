@@ -14,6 +14,18 @@ Signal Desk is a static, browser-native security log triage workbench. It accept
 
 The implementation is framework-free, has no runtime dependencies, processes evidence locally, and isolates its tested parsing and detection rules in [`core.js`](core.js).
 
+## How it works
+
+```mermaid
+flowchart LR
+  A["JSON, JSONL, or CSV evidence"] --> B["Normalize common event fields"]
+  B --> C["Run transparent rules and correlations"]
+  C --> D["Findings, timeline, and event stream"]
+  D --> E["Analyst decision and case export"]
+```
+
+CI enforces at least 95% line coverage, 95% function coverage, and 85% branch coverage for the parsing and detection engine.
+
 ## Why this project exists
 
 The app demonstrates security operations work that is visible in the product: evidence ingestion, schema normalization, event correlation, incident triage, privacy-aware processing, accessible interaction, and testable detection logic. It complements—rather than duplicates—the existing weather, network-visibility, and cybersecurity research projects in this portfolio.

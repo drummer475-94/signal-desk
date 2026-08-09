@@ -26,6 +26,7 @@ test('bounds imports and makes duplicate event identifiers stable', () => {
   assert.deepEqual(events.map((event) => event.id), ['same', 'same-2'])
   assert.throws(() => parseLogText(JSON.stringify(Array.from({ length: 5001 }, (_, index) => ({ timestamp: `2026-01-01T00:00:${String(index % 60).padStart(2, '0')}Z` })))), /5000 events/)
   assert.throws(() => parseLogText('timestamp,timestamp\n2026-01-01,2026-01-02'), /unique/)
+  assert.throws(() => parseLogText('timestamp,message\n2026-01-01T00:00:00Z,"unfinished'), /unterminated/)
 })
 
 test('rejects files without usable timestamps', () => {

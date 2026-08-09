@@ -13,7 +13,7 @@ const elements = Object.fromEntries([
   'criticalMetric', 'actorMetric', 'timeline', 'findingList', 'findingCount', 'visibleCount',
   'filterForm', 'searchInput', 'sourceFilter', 'severityFilter', 'eventRows', 'emptyState',
   'findingDialog', 'dialogSeverity', 'dialogTitle', 'dialogRationale', 'dialogRecommendation',
-  'dialogEvents', 'findingNote', 'saveDecisionButton',
+  'dialogEvents', 'findingNote', 'saveDecisionButton', 'demoCueButton',
 ].map((id) => [id, document.getElementById(id)]))
 
 function loadDecisions() {
@@ -197,6 +197,10 @@ elements.fileInput.addEventListener('change', async () => {
   }
 })
 elements.demoButton.addEventListener('click', () => resetCase(demoEvents, 'Demo case and triage decisions reset.', true))
+elements.demoCueButton.addEventListener('click', () => {
+  const finding = state.findings.find((item) => item.ruleId === 'failure-then-success')
+  if (finding) openFinding(finding)
+})
 elements.exportButton.addEventListener('click', downloadCase)
 elements.filterForm.addEventListener('input', renderEvents)
 elements.saveDecisionButton.addEventListener('click', saveActiveDecision)

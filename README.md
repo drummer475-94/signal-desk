@@ -1,5 +1,7 @@
 # Signal Desk
 
+[![Tests](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml/badge.svg)](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml)
+
 Signal Desk is a static, browser-native security log triage workbench. It accepts JSON, JSONL, and CSV evidence; normalizes common field names; runs transparent correlation rules; and exports analyst decisions with the supporting events.
 
 **[Open the live app](https://drummer475-94.github.io/signal-desk/)**

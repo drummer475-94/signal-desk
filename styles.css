@@ -78,4 +78,5 @@ footer { border-top: 1px solid var(--line); color: var(--muted); padding: 1.5rem
 .source-link { color: #b7dceb; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; text-underline-offset: .25rem; }
 .project-meta { display: flex; flex-wrap: wrap; gap: .45rem; margin: 1.15rem 0 0; padding: 0; list-style: none; }
 .project-meta li { border: 1px solid var(--line); border-radius: 999px; padding: .38rem .62rem; color: #b7dceb; font-size: .65rem; font-weight: 750; letter-spacing: .035em; }
+.demo-cue { display: block; width: fit-content; margin: .85rem 0 0; border: 0; background: none; padding: 0; color: #dfeaf0; font-size: .72rem; font-weight: 800; letter-spacing: .025em; text-decoration: underline; text-underline-offset: .22rem; }.demo-cue span { color: var(--cyan); }
 @media (max-width: 760px) { .source-link { display: none; } }

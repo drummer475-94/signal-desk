@@ -80,6 +80,7 @@ function parseCsvLine(line) {
       value += character
     }
   }
+  if (quoted) throw new Error('CSV contains an unterminated quoted field.')
   values.push(value.trim())
   return values
 }

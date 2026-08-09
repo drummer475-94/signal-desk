@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#081018">
     <meta name="description" content="A browser-based security log triage workbench for correlation, investigation, and evidence export.">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'">
     <title>Signal Desk | Security Log Triage</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
@@ -18,6 +20,7 @@
       </a>
       <div class="header-meta">
         <span class="privacy-badge"><i aria-hidden="true"></i> Local processing only</span>
+        <a class="source-link" href="https://github.com/drummer475-94/signal-desk" target="_blank" rel="noreferrer">Source code <span aria-hidden="true">↗</span></a>
         <button class="button ghost" id="exportButton" type="button">Export case</button>
       </div>
     </header>
@@ -28,6 +31,7 @@
           <p class="eyebrow">Investigation workspace / SD-01</p>
           <h1 id="pageTitle">Turn noisy events into a defensible first read.</h1>
           <p>Normalize JSON, JSONL, or CSV logs, correlate high-signal behavior, and record triage decisions without sending evidence to a server.</p>
+          <ul class="project-meta" aria-label="Engineering highlights"><li>Vanilla JavaScript</li><li>Zero runtime dependencies</li><li>Tested detection rules</li></ul>
         </div>
         <div class="ingest-panel" aria-labelledby="ingestTitle">
           <div>
@@ -108,7 +112,7 @@
       </form>
     </dialog>
 
-    <footer><p>Signal Desk is a portfolio demonstration. Detection rules are transparent heuristics, not a replacement for a SIEM or incident-response process.</p><a href="https://github.com/drummer475-94" target="_blank" rel="noreferrer">GitHub profile <span aria-hidden="true">↗</span></a></footer>
+    <footer><p>Signal Desk is a portfolio demonstration. Detection rules are transparent heuristics, not a replacement for a SIEM or incident-response process.</p><a href="https://github.com/drummer475-94/signal-desk" target="_blank" rel="noreferrer">Review the source <span aria-hidden="true">↗</span></a></footer>
     <script type="module" src="app.js"></script>
   </body>
 </html>

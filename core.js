@@ -1,5 +1,11 @@
 export const severityRank = { critical: 4, high: 3, medium: 2, low: 1, info: 0 }
 
+const maxImportedEvents = 5000
+
+function boundedText(value, maximum) {
+  return String(value ?? '').trim().slice(0, maximum)
+}
+
 export const demoEvents = [
   { timestamp: '2026-08-08T13:02:11Z', source: 'vpn-gateway', actor: 'mrivera', eventType: 'authentication', outcome: 'failure', ip: '198.51.100.42', message: 'Invalid password' },
   { timestamp: '2026-08-08T13:03:08Z', source: 'vpn-gateway', actor: 'mrivera', eventType: 'authentication', outcome: 'failure', ip: '198.51.100.42', message: 'Invalid password' },
@@ -39,15 +45,15 @@ export function normalizeEvent(record, index = 0) {
   const parsedTime = new Date(rawTimestamp)
   const validTime = Number.isFinite(parsedTime.getTime())
   const event = {
-    id: String(input.id || `event-${index + 1}`),
+    id: boundedText(input.id || `event-${index + 1}`, 120),
     timestamp: validTime ? parsedTime.toISOString() : '',
-    source: String(firstValue(input, aliases.source) || 'unknown-source'),
-    actor: String(firstValue(input, aliases.actor) || 'unknown-actor'),
-    eventType: String(firstValue(input, aliases.eventType) || 'uncategorized').toLowerCase(),
-    outcome: String(firstValue(input, aliases.outcome) || 'unknown').toLowerCase(),
-    ip: String(firstValue(input, aliases.ip) || 'not-recorded'),
-    severity: String(firstValue(input, aliases.severity) || 'info').toLowerCase(),
-    message: String(firstValue(input, aliases.message) || 'No event message'),
+    source: boundedText(firstValue(input, aliases.source) || 'unknown-source', 120),
+    actor: boundedText(firstValue(input, aliases.actor) || 'unknown-actor', 120),
+    eventType: boundedText(firstValue(input, aliases.eventType) || 'uncategorized', 80).toLowerCase(),
+    outcome: boundedText(firstValue(input, aliases.outcome) || 'unknown', 40).toLowerCase(),
+    ip: boundedText(firstValue(input, aliases.ip) || 'not-recorded', 128),
+    severity: boundedText(firstValue(input, aliases.severity) || 'info', 20).toLowerCase(),
+    message: boundedText(firstValue(input, aliases.message) || 'No event message', 2000),
     raw: input,
   }
   if (!(event.severity in severityRank)) event.severity = 'info'
@@ -81,10 +87,22 @@ function parseCsvLine(line) {
 function parseCsv(text) {
   const lines = text.split(/\r?\n/).filter((line) => line.trim())
   if (lines.length < 2) return []
-  const headers = parseCsvLine(lines[0]).map((header) => header.trim())
+  const headers = parseCsvLine(lines[0]).map((header, index) => boundedText(index ? header : header.replace(/^\uFEFF/, ''), 80))
+  if (headers.some((header) => !header) || new Set(headers).size !== headers.length) throw new Error('CSV headers must be non-empty and unique.')
   return lines.slice(1).map((line) => {
     const values = parseCsvLine(line)
     return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? '']))
+  })
+}
+
+function uniqueEventIds(events) {
+  const used = new Set()
+  return events.map((event) => {
+    let id = event.id
+    let suffix = 2
+    while (used.has(id)) { id = `${event.id}-${suffix}`; suffix += 1 }
+    used.add(id)
+    return id === event.id ? event : { ...event, id }
   })
 }
 
@@ -103,7 +121,12 @@ export function parseLogText(text) {
       records = parseCsv(source)
     }
   }
-  const events = records.map(normalizeEvent).filter((event) => event.timestamp)
+  if (!Array.isArray(records) || !records.length) throw new Error('No event records were found.')
+  if (records.length > maxImportedEvents) throw new Error(`Imports are limited to ${maxImportedEvents} events.`)
+  if (records.some((record) => !record || typeof record !== 'object' || Array.isArray(record))) {
+    throw new Error('Every event must be a JSON object or CSV row.')
+  }
+  const events = uniqueEventIds(records.map(normalizeEvent).filter((event) => event.timestamp))
   if (!events.length) throw new Error('No events with valid timestamps were found. Use JSON, JSONL, or CSV with a timestamp field.')
   return events.sort((a, b) => a.timestamp.localeCompare(b.timestamp))
 }

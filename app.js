@@ -61,6 +61,8 @@ function render() {
 
 function renderTimeline() {
   const buckets = timelineBuckets(state.events)
+  const elevatedTotal = buckets.reduce((sum, bucket) => sum + bucket.elevated, 0)
+  elements.timeline.setAttribute('aria-label', `${state.events.length} events over ${buckets.length} time buckets; ${elevatedTotal} elevated events.`)
   const maximum = Math.max(1, ...buckets.map((bucket) => bucket.total))
   elements.timeline.replaceChildren(...buckets.map((bucket) => {
     const column = document.createElement('div')
@@ -112,7 +114,6 @@ function renderEvents() {
   elements.emptyState.hidden = events.length > 0
   elements.eventRows.replaceChildren(...events.map((event) => {
     const row = document.createElement('tr')
-    row.tabIndex = 0
     row.innerHTML = '<td><time></time></td><td><strong></strong><small></small></td><td><span class="event-type"></span><p></p></td><td><code></code></td>'
     const time = row.querySelector('time')
     time.dateTime = event.timestamp

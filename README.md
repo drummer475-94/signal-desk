@@ -2,6 +2,16 @@
 
 Signal Desk is a static, browser-native security log triage workbench. It accepts JSON, JSONL, and CSV evidence; normalizes common field names; runs transparent correlation rules; and exports analyst decisions with the supporting events.
 
+**[Open the live app](https://drummer475-94.github.io/signal-desk/)**
+
+## 60-second review
+
+1. Start with the demo case and scan the two critical findings in the summary.
+2. Open **Successful sign-in after failure burst** to see the correlated evidence and recommended response.
+3. Record an escalation note, search the normalized event stream, and export the evidence-backed case.
+
+The implementation is framework-free, has no runtime dependencies, processes evidence locally, and isolates its tested parsing and detection rules in [`core.js`](core.js).
+
 ## Why this project exists
 
 The app demonstrates security operations work that is visible in the product: evidence ingestion, schema normalization, event correlation, incident triage, privacy-aware processing, accessible interaction, and testable detection logic. It complements—rather than duplicates—the existing weather, network-visibility, and cybersecurity research projects in this portfolio.

@@ -1,6 +1,30 @@
 # Signal Desk
 
+[![Tests](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml/badge.svg)](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml)
+
 Signal Desk is a static, browser-native security log triage workbench. It accepts JSON, JSONL, and CSV evidence; normalizes common field names; runs transparent correlation rules; and exports analyst decisions with the supporting events.
+
+**[Open the live app](https://drummer475-94.github.io/signal-desk/)**
+
+## 60-second review
+
+1. Start with the demo case and scan the two critical findings in the summary.
+2. Open **Successful sign-in after failure burst** to see the correlated evidence and recommended response.
+3. Record an escalation note, search the normalized event stream, and export the evidence-backed case.
+
+The implementation is framework-free, has no runtime dependencies, processes evidence locally, and isolates its tested parsing and detection rules in [`core.js`](core.js).
+
+## How it works
+
+```mermaid
+flowchart LR
+  A["JSON, JSONL, or CSV evidence"] --> B["Normalize common event fields"]
+  B --> C["Run transparent rules and correlations"]
+  C --> D["Findings, timeline, and event stream"]
+  D --> E["Analyst decision and case export"]
+```
+
+CI enforces at least 95% line coverage, 95% function coverage, and 85% branch coverage for the parsing and detection engine.
 
 ## Why this project exists
 

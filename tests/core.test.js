@@ -18,6 +18,23 @@ test('parses JSON, JSONL, and quoted CSV records', () => {
   assert.equal(parseLogText(csv)[0].message, 'Hello, world')
 })
 
+test('bounds imports and makes duplicate event identifiers stable', () => {
+  const events = parseLogText(JSON.stringify([
+    { id: 'same', timestamp: '2026-01-01T00:00:00Z' },
+    { id: 'same', timestamp: '2026-01-01T00:01:00Z' },
+  ]))
+  assert.deepEqual(events.map((event) => event.id), ['same', 'same-2'])
+  assert.throws(() => parseLogText(JSON.stringify(Array.from({ length: 5001 }, (_, index) => ({ timestamp: `2026-01-01T00:00:${String(index % 60).padStart(2, '0')}Z` })))), /5000 events/)
+  assert.throws(() => parseLogText('timestamp,timestamp\n2026-01-01,2026-01-02'), /unique/)
+  assert.throws(() => parseLogText('timestamp,message\n2026-01-01T00:00:00Z,"unfinished'), /unterminated/)
+  assert.throws(() => parseLogText('[42]'), /Every event/)
+})
+
+test('preserves escaped quotes in CSV evidence', () => {
+  const csv = 'timestamp,message\n2026-01-01T00:00:00Z,"Operator said ""review"""'
+  assert.equal(parseLogText(csv)[0].message, 'Operator said "review"')
+})
+
 test('rejects files without usable timestamps', () => {
   assert.throws(() => parseLogText('[{"source":"host"}]'), /valid timestamps/)
 })

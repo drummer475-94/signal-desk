@@ -13,7 +13,7 @@ const elements = Object.fromEntries([
   'criticalMetric', 'actorMetric', 'timeline', 'findingList', 'findingCount', 'visibleCount',
   'filterForm', 'searchInput', 'sourceFilter', 'severityFilter', 'eventRows', 'emptyState',
   'findingDialog', 'dialogSeverity', 'dialogTitle', 'dialogRationale', 'dialogRecommendation',
-  'dialogEvents', 'findingNote', 'saveDecisionButton',
+  'dialogEvents', 'findingNote', 'saveDecisionButton', 'demoCueButton',
 ].map((id) => [id, document.getElementById(id)]))
 
 function loadDecisions() {
@@ -61,6 +61,8 @@ function render() {
 
 function renderTimeline() {
   const buckets = timelineBuckets(state.events)
+  const elevatedTotal = buckets.reduce((sum, bucket) => sum + bucket.elevated, 0)
+  elements.timeline.setAttribute('aria-label', `${state.events.length} events over ${buckets.length} time buckets; ${elevatedTotal} elevated events.`)
   const maximum = Math.max(1, ...buckets.map((bucket) => bucket.total))
   elements.timeline.replaceChildren(...buckets.map((bucket) => {
     const column = document.createElement('div')
@@ -112,7 +114,6 @@ function renderEvents() {
   elements.emptyState.hidden = events.length > 0
   elements.eventRows.replaceChildren(...events.map((event) => {
     const row = document.createElement('tr')
-    row.tabIndex = 0
     row.innerHTML = '<td><time></time></td><td><strong></strong><small></small></td><td><span class="event-type"></span><p></p></td><td><code></code></td>'
     const time = row.querySelector('time')
     time.dateTime = event.timestamp
@@ -196,6 +197,10 @@ elements.fileInput.addEventListener('change', async () => {
   }
 })
 elements.demoButton.addEventListener('click', () => resetCase(demoEvents, 'Demo case and triage decisions reset.', true))
+elements.demoCueButton.addEventListener('click', () => {
+  const finding = state.findings.find((item) => item.ruleId === 'failure-then-success')
+  if (finding) openFinding(finding)
+})
 elements.exportButton.addEventListener('click', downloadCase)
 elements.filterForm.addEventListener('input', renderEvents)
 elements.saveDecisionButton.addEventListener('click', saveActiveDecision)

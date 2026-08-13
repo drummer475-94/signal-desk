@@ -1,4 +1,4 @@
-import { demoEvents, detectFindings, filterEvents, normalizeEvent, parseLogText, summarize, timelineBuckets } from './core.js'
+import { buildCaseExport, demoEvents, detectFindings, filterEvents, normalizeEvent, parseLogText, summarize, timelineBuckets } from './core.js'
 
 const storageKey = 'signal-desk:triage:v1'
 const state = {
@@ -130,7 +130,7 @@ function renderEvents() {
 function openFinding(item) {
   state.activeFinding = item
   const saved = state.decisions[item.id] || { decision: 'new', note: '' }
-  elements.dialogSeverity.textContent = `${item.severity} severity · ${item.ruleId}`
+  elements.dialogSeverity.textContent = `${item.severity} severity · ${item.ruleId} · ${item.mitreTechniqueId} ${item.mitreTechniqueName}`
   elements.dialogTitle.textContent = item.title
   elements.dialogRationale.textContent = item.rationale
   elements.dialogRecommendation.textContent = item.recommendation
@@ -164,13 +164,7 @@ function saveActiveDecision() {
 }
 
 function downloadCase() {
-  const payload = {
-    exportedAt: new Date().toISOString(),
-    sourceNotice: 'Generated locally in Signal Desk. Validate heuristic findings before operational use.',
-    summary: summarize(state.events, state.findings),
-    findings: state.findings.map((item) => ({ ...item, triage: state.decisions[item.id] || { decision: 'new', note: '' } })),
-    events: state.events.map(({ raw, ...event }) => event),
-  }
+  const payload = buildCaseExport(state.events, state.findings, state.decisions)
   const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }))
   const link = document.createElement('a')
   link.href = url

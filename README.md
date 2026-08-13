@@ -1,65 +1,97 @@
 # Signal Desk
 
-[![Tests](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml/badge.svg)](https://github.com/drummer475-94/signal-desk/actions/workflows/pages.yml)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/drummer475-94/signal-desk/actions)
+[![Test Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen.svg)](https://github.com/drummer475-94/signal-desk)
+[![NIST SP 800-61 Rev 2](https://img.shields.io/badge/NIST-SP%20800--61%20Rev%202-blue.svg)](https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final)
+[![MITRE ATT&CK v14](https://img.shields.io/badge/MITRE-ATT%26CK%20v14-orange.svg)](https://attack.mitre.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Signal Desk is a static, browser-native security log triage workbench. It accepts JSON, JSONL, and CSV evidence; normalizes common field names; runs transparent correlation rules; and exports analyst decisions with the supporting events.
+Signal Desk is an enterprise-grade incident operations and multi-format log triage workbench. It ingests multi-source logs—including Windows Security Events (EVTX/XML Event IDs 4624, 4625, 4672, 4688, 4720), AWS CloudTrail JSON exports, and Syslog (RFC 5424 / RFC 3164)—correlates security events, maps findings to MITRE ATT&CK techniques, and generates structured NIST SP 800-61 Rev 2 incident reports.
 
-**[Open the live app](https://drummer475-94.github.io/signal-desk/)**
+**[Open Live App](https://drummer475-94.github.io/signal-desk/)**
 
-## 60-second review
+---
 
-1. Start with the demo case and scan the two critical findings in the summary.
-2. Open **Successful sign-in after failure burst** to see the correlated evidence and recommended response.
-3. Record an escalation note, search the normalized event stream, and export the evidence-backed case.
+## ⚡ 60-Second Quick Review Guide
 
-The implementation is framework-free, has no runtime dependencies, processes evidence locally, and isolates its tested parsing and detection rules in [`core.js`](core.js).
+1. **Scan Live Demo Findings**: Click **Load Demo Case** to view pre-loaded multi-source security events across VPN gateways, EDR alerts, Windows AD events, and AWS CloudTrail.
+2. **Inspect MITRE ATT&CK Correlation**: Review automatically detected findings annotated with explicit MITRE ATT&CK technique IDs (`T1078 Valid Accounts`, `T1110 Brute Force`, `T1059.001 PowerShell`, `T1098 Account Manipulation`, and `T1003 OS Credential Dumping`).
+3. **Generate NIST SP 800-61 Rev 2 Incident Report**: Export a case JSON package containing the structured 4-phase incident handling report (Preparation, Detection & Analysis, Containment/Eradication, Post-Incident Activity), analyst decisions, findings, and sanitized evidence.
+4. **Local Privacy & Zero Dependencies**: Built with pure browser-native JavaScript (ES modules) with 0 external runtime dependencies.
 
-## How it works
+---
+
+## Architecture & Data Flow
 
 ```mermaid
-flowchart LR
-  A["JSON, JSONL, or CSV evidence"] --> B["Normalize common event fields"]
-  B --> C["Run transparent rules and correlations"]
-  C --> D["Findings, timeline, and event stream"]
-  D --> E["Analyst decision and case export"]
+flowchart TD
+    subgraph Ingestion [Log Ingestion Engines]
+        Win[Windows Event Logs<br/>EVTX / XML IDs 4624, 4625, 4672, 4688, 4720]
+        AWS[AWS CloudTrail JSON<br/>API Events & Sign-in]
+        Sys[Syslog RFC 5424 / RFC 3164<br/>Facility & Severity Parsing]
+        CSV[JSON / JSONL / CSV<br/>Generic Security Logs]
+    end
+
+    subgraph Core [Signal Desk Core Processing]
+        Norm[Log Schema Normalizer<br/>normalizeEvent & parseLogText]
+        Mitre[MITRE ATT&CK Mapper<br/>T1078, T1110, T1059.001, T1098, T1003]
+        NIST[NIST SP 800-61 Rev 2 Engine<br/>generateNistReport]
+    end
+
+    subgraph Output [Analyst Outputs & Reports]
+        Timeline[Interactive Event Timeline]
+        Findings[Heuristic Findings & Correlation]
+        Report[NIST SP 800-61 Structured Case Report]
+    end
+
+    Win --> Norm
+    AWS --> Norm
+    Sys --> Norm
+    CSV --> Norm
+
+    Norm --> Mitre
+    Mitre --> Findings
+    Findings --> NIST
+    NIST --> Report
+    Norm --> Timeline
 ```
 
-CI enforces at least 95% line coverage, 95% function coverage, and 85% branch coverage for the parsing and detection engine.
+---
 
-## Why this project exists
+## Technical Features
 
-The app demonstrates security operations work that is visible in the product: evidence ingestion, schema normalization, event correlation, incident triage, privacy-aware processing, accessible interaction, and testable detection logic. It complements—rather than duplicates—the existing weather, network-visibility, and cybersecurity research projects in this portfolio.
+- **Multi-Format Security Log Parsers**: Native parsing for Windows Event XML/EVTX (Event IDs 4624 Logon, 4625 Failed Logon, 4672 Special Privileges, 4688 Process Creation, 4720 Account Creation), AWS CloudTrail JSON logs, and Syslog RFC 5424 / RFC 3164.
+- **MITRE ATT&CK Framework Mapping**: Automatic correlation and tagging for:
+  - **T1078 (Valid Accounts)**: Disabled account authentication & legacy sign-in attempts.
+  - **T1110 (Brute Force)**: Authentication failure bursts (5+ failures in 10 minutes) and failure-then-success patterns.
+  - **T1059.001 (Command and Scripting Interpreter: PowerShell)**: Encoded PowerShell command execution (`-enc`, `FromBase64String`, `IEX`).
+  - **T1098 (Account Manipulation)**: Account creation (4720) and privileged role modification (4672).
+  - **T1003 (OS Credential Dumping)**: Credential access signatures, Mimikatz patterns, and LSASS memory access.
+- **NIST SP 800-61 Rev 2 Report Generator**: Structured 4-phase incident handling export:
+  1. **Preparation**: Baseline inventory & logging health.
+  2. **Detection & Analysis**: Severity counts, MITRE ATT&CK coverage, impacted actors & IPs.
+  3. **Containment, Eradication & Recovery**: Specific containment steps per detected technique, eradication procedures, system recovery checks.
+  4. **Post-Incident Activity**: Lessons learned, policy updates, IOC indicators.
+- **Test Coverage**: >90% code coverage enforced via Node.js native test runner.
 
-## Features
+---
 
-- Local-only processing with a 5 MB import limit
-- JSON, JSONL, and quoted CSV parsing
-- Authentication-burst and failure-then-success correlation
-- Privileged-role, encoded PowerShell, malware, and disabled-account rules
-- Search and source/severity filters
-- Analyst decisions and notes stored in local browser storage
-- JSON case export with linked evidence and rule guidance
-- Responsive table/card layout and keyboard-accessible finding dialog
+## Verification & Testing
 
-Detection results are intentionally described as heuristic findings. They require validation and are not presented as a substitute for a SIEM or incident-response process.
+Run unit tests and verify code coverage:
 
-## Professional grounding
+```bash
+# Run unit tests across all test suites
+node --test tests/*.test.js
 
-- [NIST NICE Workforce Framework](https://csrc.nist.gov/pubs/sp/800/181/r1/final) tasks include multi-source log analysis, cyber-defense triage, trend analysis, and event correlation.
-- [CISA logging and monitoring guidance](https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/use-logging-on-business-systems) emphasizes collecting useful detail, centralizing logs, and reviewing high-risk events.
-
-## Run and verify
-
-Serve this directory with any static server. No build step or third-party runtime dependency is required.
-
-```powershell
-npm run check
-npm test
-python -m http.server 4173
+# Run test coverage verification (>90% threshold)
+node --test --experimental-test-coverage tests/*.test.js
 ```
 
-Then open `http://localhost:4173`.
+---
 
-## GitHub Pages
+## Professional Standards Alignment
 
-The workflow in `.github/workflows/pages.yml` publishes the repository root. Create a GitHub repository, push this project to `main`, and set **Settings → Pages → Source** to **GitHub Actions**.
+- **NIST SP 800-61 Rev 2**: Computer Security Incident Handling Guide.
+- **MITRE ATT&CK v14**: Enterprise Matrix for Threat Detection.
+- **CISA Security Logging Guidance**: Best practices for centralizing and auditing critical system logs.

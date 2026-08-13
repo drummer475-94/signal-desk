@@ -2,11 +2,11 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/drummer475-94/signal-desk/actions)
 [![Test Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen.svg)](https://github.com/drummer475-94/signal-desk)
-[![NIST SP 800-61 Rev 2](https://img.shields.io/badge/NIST-SP%20800--61%20Rev%202-blue.svg)](https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final)
-[![MITRE ATT&CK v14](https://img.shields.io/badge/MITRE-ATT%26CK%20v14-orange.svg)](https://attack.mitre.org/)
+[![NIST workflow](https://img.shields.io/badge/NIST-legacy%20SP%20800--61%20Rev%202%20workflow-blue.svg)](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+[![MITRE ATT&CK mapped](https://img.shields.io/badge/MITRE-ATT%26CK%20mapped-orange.svg)](https://attack.mitre.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Signal Desk is an enterprise-grade incident operations and multi-format log triage workbench. It ingests multi-source logs—including Windows Security Events (EVTX/XML Event IDs 4624, 4625, 4672, 4688, 4720), AWS CloudTrail JSON exports, and Syslog (RFC 5424 / RFC 3164)—correlates security events, maps findings to MITRE ATT&CK techniques, and generates structured NIST SP 800-61 Rev 2 incident reports.
+Signal Desk is a browser-based incident-operations and multi-format log-triage workbench. It ingests Windows Security Events (EVTX/XML Event IDs 4624, 4625, 4672, 4688, 4720), AWS CloudTrail JSON exports, and Syslog (RFC 5424 / RFC 3164), correlates events, maps findings to MITRE ATT&CK techniques, and generates structured legacy NIST SP 800-61 Rev. 2-style reports. NIST SP 800-61 Rev. 3 is the current guidance.
 
 **[Open Live App](https://drummer475-94.github.io/signal-desk/)**
 
@@ -92,6 +92,6 @@ node --test --experimental-test-coverage tests/*.test.js
 
 ## Professional Standards Alignment
 
-- **NIST SP 800-61 Rev 2**: Computer Security Incident Handling Guide.
-- **MITRE ATT&CK v14**: Enterprise Matrix for Threat Detection.
+- **NIST SP 800-61 Rev. 2**: Legacy workflow retained for compatibility with this exercise; Rev. 3 is current guidance.
+- **MITRE ATT&CK**: Enterprise technique mappings used by the detection rules.
 - **CISA Security Logging Guidance**: Best practices for centralizing and auditing critical system logs.
